@@ -241,21 +241,6 @@ Resources:
                     - 'iam:PutRolePolicy'
                   Resource:
                     - !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:role/${ProjectName}*'
-        - PolicyName: api-gateway
-          PolicyDocument:
-              Statement:
-                - Effect: Allow
-                  Action:
-                    - 'apigateway:GET'
-                    - 'apigateway:POST'
-                    - 'apigateway:PATCH'
-                    - 'apigateway:PUT'
-                    - 'apigateway:DELETE'
-                  Resource:
-                    - !Sub 'arn:${AWS::Partition}:apigateway:${AWS::Region}::/domainnames'
-                    - !Sub 'arn:${AWS::Partition}:apigateway:${AWS::Region}::/domainnames/*'
-                    - !Sub 'arn:${AWS::Partition}:apigateway:${AWS::Region}::/restapis'
-                    - !Sub 'arn:${AWS::Partition}:apigateway:${AWS::Region}::/restapis/*'
         - PolicyName: lambda
           PolicyDocument:
               Statement:

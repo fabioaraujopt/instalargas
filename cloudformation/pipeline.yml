@@ -188,12 +188,13 @@ Resources:
         - PolicyName: cloudfront
           PolicyDocument:
             Version: '2012-10-17'
-              Statement:
-                - Effect: Allow
-                  Action:
-                    - 'cloudfront:*'
-                  Resource:
-                    - '*'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'cloudfront:*'
+                Resource:
+                  - '*'
+
         - PolicyName: s3-creation
           PolicyDocument:
             Version: '2012-10-17'

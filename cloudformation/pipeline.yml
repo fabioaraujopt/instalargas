@@ -186,7 +186,7 @@ Resources:
                     - 'iam:PassRole'
                   Resource:
                     - !GetAtt CloudFormationExecutionRole.Arn
-            
+                 
   CloudFormationExecutionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -265,6 +265,13 @@ Resources:
                   Resource:
                     - !Sub 'arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${ProjectName}*'
                     - !Sub 'arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:layer:*'
+        - PolicyName: cloudfront
+          PolicyDocument:
+            Statement:
+              -Effect: Allow
+              Action:
+                - 'cloudfront:*'
+              Resource: "*"
             
   ApplicationCodeBuildProject:
     Type: AWS::CodeBuild::Project

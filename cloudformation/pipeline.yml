@@ -113,7 +113,6 @@ Resources:
                   Configuration:
                     BucketName: !Sub ${ProjectName}-bucket
                     Extract: true
-                    DeploymentPath: /dev                     
   PipelineWebhook:
     Type: AWS::CodePipeline::Webhook
     Properties:

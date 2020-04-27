@@ -194,6 +194,15 @@ Resources:
                     - 'cloudfront:*'
                   Resource:
                     - '*'
+        - PolicyName: s3-creation
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 's3:*'
+                Resource:
+                  - '*'
             
                  
   CloudFormationExecutionRole:

@@ -16,6 +16,7 @@ Parameters:
     ProjectName:
         Type: String
         Description: 'Project and Stack name'
+        Default: teste12345
     GithubUser:
         Type: String
         Description: 'Github user where the repository lives'
@@ -23,12 +24,15 @@ Parameters:
     GithubRepo:
         Type: String
         Description: 'instalargas'
+        Default: instalargas
     GithubBranch:
         Type: String
         Description: 'master'
+        Default: master
     GithubCode:
         Type: String
         Description: 'master'
+        Default: 682352d802db82b68e66abcae7d9ad4c69da7a67
   
 Resources:
   BuildArtifactsBucket:
@@ -99,6 +103,7 @@ Resources:
                       StackName: !Sub '${ProjectName}-application'
                       TemplatePath: ApplicationBuildArtifactAsZip::packaged.yaml
                       OutputFileName: ApplicationOutputs.json
+                      ParameterOverrides: !Sub '{"ProjectName": "${ProjectName}"}'
                   InputArtifacts:
                     - Name: ApplicationBuildArtifactAsZip
                   OutputArtifacts:
@@ -110,6 +115,8 @@ Resources:
                       Owner: AWS
                       Provider: S3
                       Version: '1'
+                  InputArtifacts:
+                    - Name: SourceCodeAsZip
                   Configuration:
                     BucketName: !Sub ${ProjectName}-bucket
                     Extract: true
@@ -146,7 +153,7 @@ Resources:
                 Action:
                   - 's3:Get*'
                   - 's3:Put*'
-                Resource: !Sub 'arn:aws:s3:::${ProjectName}-bucket/*'
+                Resource: !Sub 'arn:aws:s3:::*/*'
         - PolicyName: logs
           PolicyDocument:
             Version: '2012-10-17'
@@ -207,76 +214,93 @@ Resources:
             
                  
   CloudFormationExecutionRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-            - Effect: Allow
-              Principal: {Service: ['cloudformation.amazonaws.com']}
-              Action: ['sts:AssumeRole']
-      Policies:
-        - PolicyName: s3
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - 's3:*'
-                Resource:
-                  - !Sub 'arn:aws:s3:::${ProjectName}-bucket/*'
-        - PolicyName: logs
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - 'logs:CreateLogGroup'
-                  - 'logs:CreateLogStream'
-                  - 'logs:PutLogEvents'
-                Resource: arn:aws:logs:*:*:*
-        - PolicyName: cloudformation
-          PolicyDocument:
+      Type: AWS::IAM::Role
+      Properties:
+          AssumeRolePolicyDocument:
+              Version: '2012-10-17'
               Statement:
                 - Effect: Allow
-                  Action:
-                    - 'cloudformation:CreateChangeSet'
-                  Resource:
-                      - !Sub 'arn:${AWS::Partition}:cloudformation:${AWS::Region}:aws:transform/Serverless-2016-10-31'
-        - PolicyName: iam
-          PolicyDocument:
-              Statement:
-                - Effect: Allow
-                  Action:
-                    - 'iam:AttachRolePolicy'
-                    - 'iam:CreateRole'
-                    - 'iam:UpdateRole'
-                    - 'iam:DeleteRole'
-                    - 'iam:DeleteRolePolicy'
-                    - 'iam:DetachRolePolicy'
-                    - 'iam:GetRole'
-                    - 'iam:GetRolePolicy'
-                    - 'iam:PassRole'
-                    - 'iam:PutRolePolicy'
-                  Resource:
-                    - !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:role/${ProjectName}*'
-        - PolicyName: lambda
-          PolicyDocument:
-              Statement:
-                - Effect: Allow
-                  Action:
-                    - 'lambda:*'
-                  Resource:
-                    - !Sub 'arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${ProjectName}*'
-                    - !Sub 'arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:layer:*'
-        - PolicyName: cloudfront
-          PolicyDocument:
-            Statement:
-              -Effect: Allow
-              Action:
-                - 'cloudfront:*'
-              Resource: "*"
-            
+                  Principal: {Service: ['cloudformation.amazonaws.com']}
+                  Action: ['sts:AssumeRole']
+          Policies:
+            - PolicyName: s3
+              PolicyDocument:
+                Version: '2012-10-17'
+                Statement:
+                  - Effect: Allow
+                    Action:
+                      - 's3:*'
+                    Resource:
+                      - '*'
+            - PolicyName: logs
+              PolicyDocument:
+                Version: '2012-10-17'
+                Statement:
+                  - Effect: Allow
+                    Action:
+                      - 'logs:CreateLogGroup'
+                      - 'logs:CreateLogStream'
+                      - 'logs:PutLogEvents'
+                    Resource: arn:aws:logs:*:*:*
+            - PolicyName: cloudformation
+              PolicyDocument:
+                  Statement:
+                    - Effect: Allow
+                      Action:
+                        - 'cloudformation:CreateChangeSet'
+                      Resource:
+                          - !Sub 'arn:${AWS::Partition}:cloudformation:${AWS::Region}:aws:transform/Serverless-2016-10-31'
+            - PolicyName: iam
+              PolicyDocument:
+                  Statement:
+                    - Effect: Allow
+                      Action:
+                        - 'iam:AttachRolePolicy'
+                        - 'iam:CreateRole'
+                        - 'iam:UpdateRole'
+                        - 'iam:DeleteRole'
+                        - 'iam:DeleteRolePolicy'
+                        - 'iam:DetachRolePolicy'
+                        - 'iam:GetRole'
+                        - 'iam:GetRolePolicy'
+                        - 'iam:PassRole'
+                        - 'iam:PutRolePolicy'
+                      Resource:
+                        - !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:role/*'
+            - PolicyName: api-gateway
+              PolicyDocument:
+                  Statement:
+                    - Effect: Allow
+                      Action:
+                        - 'apigateway:GET'
+                        - 'apigateway:POST'
+                        - 'apigateway:PATCH'
+                        - 'apigateway:PUT'
+                        - 'apigateway:DELETE'
+                      Resource:
+                        - !Sub 'arn:${AWS::Partition}:apigateway:${AWS::Region}::/domainnames'
+                        - !Sub 'arn:${AWS::Partition}:apigateway:${AWS::Region}::/domainnames/*'
+                        - !Sub 'arn:${AWS::Partition}:apigateway:${AWS::Region}::/restapis'
+                        - !Sub 'arn:${AWS::Partition}:apigateway:${AWS::Region}::/restapis/*'
+            - PolicyName: lambda
+              PolicyDocument:
+                  Statement:
+                    - Effect: Allow
+                      Action:
+                        - 'lambda:*'
+                      Resource:
+                        - !Sub 'arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:*'
+                        - !Sub 'arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:layer:*'
+            - PolicyName: cloudfront
+              PolicyDocument:
+                Version: '2012-10-17'
+                Statement:
+                  - Effect: Allow
+                    Action:
+                      - 'cloudfront:*'
+                    Resource:
+                      - '*'
+
   ApplicationCodeBuildProject:
     Type: AWS::CodeBuild::Project
     Properties:
@@ -324,4 +348,4 @@ Resources:
                     - 's3:Get*'
                     - 's3:Put*'
                   Resource:
-                    - !Sub 'arn:aws:s3:::${ProjectName}-bucket/*'
+                    - !Sub 'arn:aws:s3:::*/*'

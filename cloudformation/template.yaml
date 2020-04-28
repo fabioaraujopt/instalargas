@@ -6,11 +6,6 @@ Parameters:
     Type: String
     Description: The project name.
     Default: instalargas1234
-  WebsiteName:
-    Type: String
-    Description: The project name.
-    Default: instalargas1234
-
 
 Resources:
   CloudFrontOriginAccessIdentity:

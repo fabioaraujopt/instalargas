@@ -10,6 +10,7 @@ phases:
           - cd $CODEBUILD_SRC_DIR
           - echo "Starting build in:"
           - pwd
+          - ls
           - aws cloudformation package
                 --s3-bucket=${BUILD_OUTPUT_BUCKET}
                 --s3-prefix=${BUILD_OUTPUT_PREFIX}

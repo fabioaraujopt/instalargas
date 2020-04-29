@@ -50,7 +50,7 @@ Resources:
           Compress: true
           ForwardedValues:
             QueryString: false
-          TargetOriginId: !Sub ${ProjectName}-bucket
+          TargetOriginId: !Sub ${ProjectName}-prod-bucket
           ViewerProtocolPolicy: allow-all
         DefaultRootObject: /index.html
         CustomErrorResponses:

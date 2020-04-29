@@ -14,23 +14,29 @@ Resources:
       CloudFrontOriginAccessIdentityConfig:
         Comment: !Sub 'CloudFront OAI for ${ProjectName}'
   
-  S3Bucket:
+  S3StagingBucket:
     Type: AWS::S3::Bucket
     Properties: 
       AccessControl: Private 
-      BucketName: !Sub ${ProjectName}-bucket
+      BucketName: !Sub ${ProjectName}-staging-bucket
+  
+  S3ProdBucket:
+    Type: AWS::S3::Bucket
+    Properties: 
+      AccessControl: Private 
+      BucketName: !Sub ${ProjectName}-prod-bucket
 
   S3BucketPolicy: 
     Type: AWS::S3::BucketPolicy
     Properties:
-      Bucket: !Ref S3Bucket
+      Bucket: !Ref S3ProdBucket
       PolicyDocument:
         Statement:
           -
             Action:
               - s3:GetObject
             Effect: Allow
-            Resource: !Join [ "", [ "arn:aws:s3:::", !Ref S3Bucket, "/*" ] ]
+            Resource: !Join [ "", [ "arn:aws:s3:::", !Ref S3ProdBucket, "/*" ] ]
             Principal:
               CanonicalUser: !GetAtt CloudFrontOriginAccessIdentity.S3CanonicalUserId
   
@@ -59,8 +65,8 @@ Resources:
         Enabled: true
         HttpVersion: http2
         Origins:
-          - DomainName: !GetAtt  S3Bucket.DomainName
-            Id: !Sub ${ProjectName}-bucket
+          - DomainName: !GetAtt  S3ProdBucket.DomainName
+            Id: !Sub ${ProjectName}-prod-bucket
             S3OriginConfig:
               OriginAccessIdentity:
                 !Join ['', ['origin-access-identity/cloudfront/', !Ref CloudFrontOriginAccessIdentity]]

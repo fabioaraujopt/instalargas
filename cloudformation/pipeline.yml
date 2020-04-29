@@ -73,24 +73,9 @@ Resources:
                   OutputArtifacts:
                     - Name: SourceCodeAsZip
                   RunOrder: 1
-            - Name: ApplicationBuild
+            - Name: DeployResources
               Actions:
-                - Name: ApplicationCodeBuild
-                  ActionTypeId:
-                      Category: Build
-                      Owner: AWS
-                      Provider: CodeBuild
-                      Version: '1'
-                  Configuration:
-                      ProjectName: !Ref ApplicationCodeBuildProject
-                  InputArtifacts:
-                    - Name: SourceCodeAsZip
-                  OutputArtifacts:
-                    - Name: ApplicationBuildArtifactAsZip
-                  RunOrder: 1
-            - Name: ApplicationDeploy
-              Actions:
-                - Name: ApplicationCloudformation
+                - Name: Cloudformation
                   ActionTypeId:
                       Category: Deploy
                       Owner: AWS
@@ -101,14 +86,12 @@ Resources:
                       Capabilities: CAPABILITY_AUTO_EXPAND,CAPABILITY_IAM
                       RoleArn: !GetAtt CloudFormationExecutionRole.Arn
                       StackName: !Sub '${ProjectName}-application'
-                      TemplatePath: ApplicationBuildArtifactAsZip::packaged.yaml
-                      OutputFileName: ApplicationOutputs.json
+                      TemplatePath: SourceCodeAsZip::template.yaml
                       ParameterOverrides: !Sub '{"ProjectName": "${ProjectName}"}'
                   InputArtifacts:
-                    - Name: ApplicationBuildArtifactAsZip
-                  OutputArtifacts:
-                    - Name: ApplicationCloudFormationOutputsAsZip
-                  RunOrder: 1
+                    - Name: SourceCodeAsZip
+            - Name: DeployS3-Staging
+              Actions:
                 - Name: DeployCodeToS3Stage
                   ActionTypeId:
                       Category: Deploy
@@ -118,7 +101,20 @@ Resources:
                   InputArtifacts:
                     - Name: SourceCodeAsZip
                   Configuration:
-                    BucketName: !Sub ${ProjectName}-bucket
+                    BucketName: !Sub ${ProjectName}-staging-bucket
+                    Extract: true
+            - Name: DeployS3-Production
+              Actions:
+                - Name: DeployCodeToS3Stage
+                  ActionTypeId:
+                      Category: Deploy
+                      Owner: AWS
+                      Provider: S3
+                      Version: '1'
+                  InputArtifacts:
+                    - Name: SourceCodeAsZip
+                  Configuration:
+                    BucketName: !Sub ${ProjectName}-prod-bucket
                     Extract: true
   PipelineWebhook:
     Type: AWS::CodePipeline::Webhook

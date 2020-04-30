@@ -121,7 +121,7 @@ Resources:
                   Configuration:
                     BucketName: !Sub ${ProjectName}-staging-bucket
                     Extract: true
-            - Name: DeployS3-Production
+            - Name: Approve-Deploy-Production
               Actions:
                 - Name: ApproveDeploy
                   ActionTypeId:
@@ -130,7 +130,9 @@ Resources:
                       Provider: Manual
                       Version: '1'
                   RunOrder: 1
-                - Name: DeployCodeToS3SProd
+            - Name: DeployCodeToS3SProd
+              Actions:
+                - Name: DeployProd
                   ActionTypeId:
                       Category: Deploy
                       Owner: AWS

@@ -19,6 +19,9 @@ Resources:
     Properties: 
       AccessControl: Private 
       BucketName: !Sub ${ProjectName}-staging-bucket
+      WebsiteConfiguration:
+        IndexDocument: index.html
+
   
   S3ProdBucket:
     Type: AWS::S3::Bucket
